@@ -16,9 +16,9 @@
 | instr |<--+                         |...        |
 | ...   |   |   "trampoline"       +--|src_orig() |
 +-------+   |  +----------------+  |  +-----------+
-            |  | <overwritten   |  |
-            |  |  instructions> |  |
-            +--| jmp src+XX     |--+
+            |  | <overwritten   |<-+
+            |  |  instructions> |
+            +--| jmp src+XX     |
                +----------------+
 ```
 
