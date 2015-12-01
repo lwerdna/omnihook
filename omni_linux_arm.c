@@ -92,11 +92,15 @@ omnihook_add(void *src, void *dst, /* out */ void **trampoline)
     /* 3) write the JMP over the source (actually hooking) */
     *(uint32_t *)(jmpcode + 4) = (uint32_t)dst;
 
+#if defined(MEM_TEXT_PROT_NEEDED)
     mem_text_writeable_spinlock(&flags);
     mem_text_address_writeable((unsigned long)src);
+#endif
     memcpy(src, jmpcode, 8); 
+#if defined(MEM_TEXT_PROT_NEEDED)
     mem_text_address_restore();
     mem_text_writeable_spinunlock(&flags);
+#endif
 
     /* debugging */
     printk("omnihook!\n");
@@ -165,11 +169,16 @@ omnihook_remove_general(void *src)
 
             /* restore original bytes (unhook) */
             //printk("restoring STOLEN bytes:");
+
+#if defined(MEM_TEXT_PROT_NEEDED)
             mem_text_writeable_spinlock(&flags);
             mem_text_address_writeable((unsigned long)cursor->src);
+#endif
             memcpy(cursor->src, cursor->stolen, 8);
+#if defined(MEM_TEXT_PROT_NEEDED)
             mem_text_address_restore();
             mem_text_writeable_spinunlock(&flags);
+#endif
 
             /* free the trampoline */
             //printk("free'ing the trampoline...\n");
