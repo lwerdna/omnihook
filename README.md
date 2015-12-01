@@ -21,21 +21,31 @@
             +--| jmp src+XX     |
                +----------------+
 ```
+* i386, ia64 details:
+  * the jumps are made with a push+ret combo (5 bytes)
+  * the intel instruction stealing is not very general, it always steals 5 bytes
+  * in my experience on Ubuntu, the first instruction in function prologs is 5 bytes
+  * better would be to incorporate a small length disassembler engine and steal at least 5 bytes, but end on an instruction boundary, and craft the trampoline accordingly
+* arm details:
+  * the jumps are made with a ldr pc immediate (8 bytes)
+  * 8 bytes is always 2 instructions, so theft is easy
 
 ## usage
 see example.c
 
-## linux on i386, amd64
-no problems, this is omnihook's home, and you probably can tweak your target machine to accommodate omnihook (exposing kallsyms, etc.)
+## linux on i386, amd64 (tested: Ubuntu)
+* use omni_linux_i386_amd64.{c,h}
+* no problems, this is omnihook's home, and you probably can tweak your target machine to accommodate omnihook easier, by exposing kallsyms for example
 
-## android on arm (phones)
+## linux on arm (tested: raspberry pi)
+* use omni_linux_arm.{c,h}
+
+## android on arm (tested: various phones)
+* use omni_linux_arm.{c,h}
 * phones are so varied in their security, see some of the shit you might have to do in my prdbg project
-* you may be able to disable mem_protection_syms
+* consider defining ANDROID_MEM_PROT_NEEDED
 
-## linux on arm (raspberry pi)
-coming soon
-
-## freebsd on i386, amd64
+## freebsd on i386, amd64 (tested: pcbsd)
 * must do some define before malloc(), kind of a pain
 * printf() instead of printk()
 * familiar {insmod, rmmod, lsmod} becomes {kldload, kldunload, kldstat} here, and kldload needs full path

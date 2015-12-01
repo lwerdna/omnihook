@@ -13,12 +13,13 @@
 struct list_head hook_list;
 LIST_HEAD(hook_list);
 
-/* necessary function pointers */
+#if defined(MEM_TEXT_PROT_NEEDED)
 int mem_protection_syms = 0;
 void (*mem_text_writeable_spinlock)(unsigned long *flags);
 void (*mem_text_address_writeable)(unsigned long addr);
 void (*mem_text_address_restore)(void);
 void (*mem_text_writeable_spinunlock)(unsigned long *flags);
+#endif
 
 int
 omnihook_add(void *src, void *dst, /* out */ void **trampoline)
@@ -32,6 +33,7 @@ omnihook_add(void *src, void *dst, /* out */ void **trampoline)
         0xde, 0xad, 0xbe, 0xef /* (dummy address) */
     };
 
+#if defined(MEM_TEXT_PROT_NEEDED)
     if(!mem_protection_syms) {
         mem_text_writeable_spinlock = 
             (void *)kallsyms_lookup_name("mem_text_writeable_spinlock");
@@ -55,6 +57,7 @@ omnihook_add(void *src, void *dst, /* out */ void **trampoline)
             goto cleanup;
         }
     }
+#endif
 
     /* list entry */
     h = kzalloc(sizeof(hook), GFP_KERNEL);
